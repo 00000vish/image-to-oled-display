@@ -1,4 +1,4 @@
-function start(){
+function start() {
   var div = document.getElementById('helloWorld');
   div.innerText = "hello world";
 }
