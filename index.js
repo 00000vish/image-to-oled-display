@@ -84,7 +84,7 @@ function runEdgeFilter() {
 }
 
 function toHexString(binaryString) {
-  const intValue = parseInt(binaryString,  2); // Parse binary string to integer
+  const intValue = parseInt(binaryString, 2); // Parse binary string to integer
   return "0x" + intValue.toString(16).padStart(2, '0'); // Convert to hex and pad if nec
 }
 
@@ -114,8 +114,8 @@ function dumpHexData() {
 
   var bitsDump = "";
 
-  for (let col = 0; col < width; col++) {
-    for (let row = 0; row < height; row++) {
+  for (let row = 0; row < height; row++) {
+    for (let col = 0; col < width; col++) {
       var color = ctx.getImageData(col, row, 1, 1).data;
       bitsDump += convertToBit(color);
     }
