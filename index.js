@@ -114,8 +114,8 @@ function dumpHexData() {
 
   var bitsDump = "";
 
-  for (let row = 0; row < height; row++) {
-    for (let col = 0; col < width; col++) {
+  for (let col = 0; col < width; col++) {
+    for (let row = 0; row < height; row++) {
       var color = ctx.getImageData(col, row, 1, 1).data;
       bitsDump += convertToBit(color);
     }
