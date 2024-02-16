@@ -91,8 +91,8 @@ function toHexString(binaryString) {
 function convertBitsToHexArray(bits) {
   var hexArray = []
 
-  for (let index = 0; index < bits.length; index += 16) {
-    var byte = bits.substring(index, index + 16);
+  for (let index = 0; index < bits.length; index += 8) {
+    var byte = bits.substring(index, index + 8);
     var hex = toHexString(byte);
     hexArray.push(hex);
   }
