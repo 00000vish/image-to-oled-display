@@ -1,37 +1,104 @@
-const height = 128;
-const width = 32;
+var originalImage = null;
+var originalImageFileURL = null;
 
-var lastFileUrl = null;
+var scaleHeight = 128;
+var scaleWidth = 32;
 
-var emptyColor = 'black';
-var nonEmptyColor = 'white';
+var rotateAngle = 0;
 
-async function resetCanvas() {
-  await setCanvasImage(lastFileUrl);
+var onColor = 'white';
+var offColor = 'black';
+var edgeOnColor = offColor;
+var edgeOffColor = onColor;
+
+var arrayHorizontal = true;
+
+var backgroundColor = '#000000'
+
+function toggleArrayOrder() {
+  arrayHorizontal = !arrayHorizontal;
+}
+
+function updateScale() {
+  scaleWidth = document.getElementById("widthInput").value;
+  scaleHeight = document.getElementById("heightInput").value;
+}
+
+function rotateImage() {
+  var canvas = document.getElementById("imageEditorCanvas");
+  var ctx = canvas.getContext("2d");
+
+  rotateAngle += 90;
+
+  var x = canvas.width / 2;
+  var y = canvas.height / 2;
+  var width = originalImage.width;
+  var height = originalImage.height;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate((rotateAngle * Math.PI) / 180);
+  ctx.drawImage(originalImage, -width / 2, -height / 2, width, height);
+  ctx.restore();
+}
+
+function setBackgroundColor(colorWheel) {
+  var colorSelector = document.getElementById("backgroundColor")
+  var colorHex = document.getElementById("backgroundColorHex")
+
+  if (colorWheel) {
+    backgroundColor = colorSelector.value;
+  } else {
+    backgroundColor = colorHex.value;
+  }
+
+  colorSelector.value = backgroundColor;
+  colorHex.value = backgroundColor;
+}
+
+function scaleImage() {
+  var editorCanvas = document.getElementById("imageEditorCanvas");
+
+  var canvas = document.getElementById("imageDisplay");
+  var ctx = canvas.getContext("2d");
+
+
+  canvas.height = scaleHeight;
+  canvas.width = scaleWidth;
+
+
+  ctx.save();
+  ctx.scale(scaleWidth / originalImage.width, scaleHeight / originalImage.height);
+  ctx.drawImage(editorCanvas, 0, 0);
+  ctx.restore();
+}
+
+
+function setEditorImage(imageFilePath) {
+  return new Promise((resolve, reject) => {
+    var canvas = document.getElementById("imageEditorCanvas");
+    var ctx = canvas.getContext("2d");
+    originalImage = new Image();
+
+    originalImage.onload = function() {
+      canvas.width = originalImage.width;
+      canvas.height = originalImage.height;
+      ctx.drawImage(originalImage, 0, 0, originalImage.width, originalImage.height);
+      resolve()
+    };
+    originalImage.onerror = reject;
+    originalImage.src = imageFilePath;
+  });
 }
 
 function toggleEdgeColors() {
-  [emptyColor, nonEmptyColor] = [nonEmptyColor, emptyColor]
+  [edgeOnColor, edgeOffColor] = [edgeOffColor, edgeOnColor]
 }
 
-function setCanvasImage(imageFile) {
-  return new Promise((resolve, reject) => {
-    var canvas = document.getElementById("imageDisplay");
-    var ctx = canvas.getContext("2d");
-
-    canvas.width = width;
-    canvas.height = height;
-
-    var image = new Image();
-    image.onload = function() {
-      ctx.drawImage(image, 0, 0, width, height);
-      resolve()
-    };
-
-    image.onerror = reject;
-
-    image.src = imageFile;
-  });
+function exportEdgeColors() {
+  resetCanvas();
+  runEdgeFilter();
+  dumpHexData();
 }
 
 function readFile(input) {
@@ -41,8 +108,8 @@ function readFile(input) {
   reader.readAsDataURL(file);
 
   reader.onload = async function() {
-    lastFileUrl = reader.result;
-    await setCanvasImage(reader.result);
+    originalImageFileURL = reader.result;
+    await setEditorImage(reader.result);
   };
 
   reader.onerror = function() {
@@ -63,17 +130,17 @@ function runEdgeFilter() {
     const red = Math.abs(colorA[0] - colorB[0]);
     const green = Math.abs(colorA[1] - colorB[1]);
     const blue = Math.abs(colorA[2] - colorB[2]);
-    const alpha = Math.abs(colorA[3] - colorB[2]);
-    return (red + green + blue + alpha) > 50;
+    const alpha = Math.abs(colorA[3] - colorB[3]);
+    return (red + green + blue + alpha) < 50;
   }
 
-  for (let col = 0; col < width; col++) {
-    for (let row = 0; row < height; row++) {
+  for (let row = 0; row < canvas.height; row++) {
+    for (let col = 0; col < canvas.width; col++) {
       var color = ctx.getImageData(col, row, 1, 1).data;
 
-      var fillColor = nonEmptyColor;
+      var fillColor = row + col === 0 ? edgeOnColor : edgeOffColor;
       if (isSameColor(prevColor, color)) {
-        fillColor = emptyColor;
+        fillColor = edgeOnColor;
       }
       prevColor = color;
 
@@ -114,8 +181,8 @@ function dumpHexData() {
 
   var bitsDump = "";
 
-  for (let row = 0; row < height; row++) {
-    for (let col = 0; col < width; col++) {
+  for (let row = 0; row < scaleHeight; row++) {
+    for (let col = 0; col < scaleWidth; col++) {
       var color = ctx.getImageData(col, row, 1, 1).data;
       bitsDump += convertToBit(color);
     }
@@ -125,9 +192,18 @@ function dumpHexData() {
   dumpTextArea.innerText = convertBitsToHexArray(bitsDump);
 }
 
-async function convert() {
-  await resetCanvas();
-  runEdgeFilter();
+function resetCanvas() {
+  scaleImage();
+}
+
+function removeBackground() {
+
+
+}
+
+function exportCanvas() {
+  resetCanvas();
+  removeBackground();
   dumpHexData();
 }
 
