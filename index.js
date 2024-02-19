@@ -181,8 +181,8 @@ function dumpHexData() {
 
   var bitsDump = "";
 
-  for (let row = 0; row < scaleHeight; row++) {
-    for (let col = 0; col < scaleWidth; col++) {
+  for (let row = 0; row < canvas.height; row++) {
+    for (let col = 0; col < canvas.width; col++) {
       var color = ctx.getImageData(col, row, 1, 1).data;
       bitsDump += convertToBit(color);
     }
