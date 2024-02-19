@@ -190,10 +190,19 @@ function dumpHexData() {
 
   var bitsDump = "";
 
-  for (let row = 0; row < canvas.height; row++) {
+  if (arrayHorizontal) {
+    for (let row = 0; row < canvas.height; row++) {
+      for (let col = 0; col < canvas.width; col++) {
+        var color = ctx.getImageData(col, row, 1, 1).data;
+        bitsDump += convertToBit(color);
+      }
+    }
+  } else {
     for (let col = 0; col < canvas.width; col++) {
-      var color = ctx.getImageData(col, row, 1, 1).data;
-      bitsDump += convertToBit(color);
+      for (let row = 0; row < canvas.height; row++) {
+        var color = ctx.getImageData(col, row, 1, 1).data;
+        bitsDump += convertToBit(color);
+      }
     }
   }
 
