@@ -13,7 +13,16 @@ var edgeOffColor = onColor;
 
 var arrayHorizontal = true;
 
-var backgroundColor = '#000000'
+var backgroundColor = hexToRgb('#000000');
+
+function hexToRgb(hex) {
+  var rgb = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i
+    , (m, r, g, b) => '#' + r + r + g + g + b + b)
+    .substring(1).match(/.{2}/g)
+    .map(x => parseInt(x, 16))
+  rgb.push(255);
+  return rgb;
+}
 
 function toggleArrayOrder() {
   arrayHorizontal = !arrayHorizontal;
@@ -54,6 +63,8 @@ function setBackgroundColor(colorWheel) {
 
   colorSelector.value = backgroundColor;
   colorHex.value = backgroundColor;
+
+  backgroundColor = hexToRgb(backgroundColor);
 }
 
 function scaleImage() {
@@ -62,10 +73,8 @@ function scaleImage() {
   var canvas = document.getElementById("imageDisplay");
   var ctx = canvas.getContext("2d");
 
-
   canvas.height = scaleHeight;
   canvas.width = scaleWidth;
-
 
   ctx.save();
   ctx.scale(scaleWidth / originalImage.width, scaleHeight / originalImage.height);
@@ -117,22 +126,22 @@ function readFile(input) {
   };
 }
 
+function isSameColor(colorA, colorB) {
+  if (colorA === null || colorB === null)
+    return false;
+
+  const red = Math.abs(colorA[0] - colorB[0]);
+  const green = Math.abs(colorA[1] - colorB[1]);
+  const blue = Math.abs(colorA[2] - colorB[2]);
+  const alpha = Math.abs(colorA[3] - colorB[3]);
+  return (red + green + blue + alpha) < 50;
+}
+
 function runEdgeFilter() {
   var canvas = document.getElementById("imageDisplay");
   var ctx = canvas.getContext("2d");
 
   var prevColor = null;
-
-  var isSameColor = (colorA, colorB) => {
-    if (colorA === null || prevColor === null)
-      return false;
-
-    const red = Math.abs(colorA[0] - colorB[0]);
-    const green = Math.abs(colorA[1] - colorB[1]);
-    const blue = Math.abs(colorA[2] - colorB[2]);
-    const alpha = Math.abs(colorA[3] - colorB[3]);
-    return (red + green + blue + alpha) < 50;
-  }
 
   for (let row = 0; row < canvas.height; row++) {
     for (let col = 0; col < canvas.width; col++) {
@@ -197,7 +206,27 @@ function resetCanvas() {
 }
 
 function removeBackground() {
+  var canvas = document.getElementById("imageDisplay");
+  var ctx = canvas.getContext("2d");
 
+  var isBackground = (color) => {
+    console.log(backgroundColor, color);
+    return isSameColor(backgroundColor, color);
+  }
+
+  for (let row = 0; row < canvas.height; row++) {
+    for (let col = 0; col < canvas.width; col++) {
+      var color = ctx.getImageData(col, row, 1, 1).data;
+
+      var fillColor = onColor;
+      if (isBackground(color)) {
+        fillColor = offColor;
+      }
+
+      ctx.fillStyle = fillColor;
+      ctx.fillRect(col, row, 1, 1);
+    }
+  }
 
 }
 
