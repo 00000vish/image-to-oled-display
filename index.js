@@ -1,8 +1,8 @@
 var originalImage = null;
 var originalImageFileURL = null;
 
-var scaleHeight = 128;
-var scaleWidth = 32;
+var scaleHeight = 32;
+var scaleWidth = 128;
 
 var rotateAngle = 0;
 
@@ -210,7 +210,6 @@ function removeBackground() {
   var ctx = canvas.getContext("2d");
 
   var isBackground = (color) => {
-    console.log(backgroundColor, color);
     return isSameColor(backgroundColor, color);
   }
 
