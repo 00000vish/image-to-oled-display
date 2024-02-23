@@ -198,10 +198,12 @@ function dumpHexData() {
       }
     }
   } else {
-    for (let col = 0; col < canvas.width; col++) {
-      for (let row = 0; row < canvas.height; row++) {
-        var color = ctx.getImageData(col, row, 1, 1).data;
-        bitsDump += convertToBit(color);
+    for (let rowJump = 0; rowJump < canvas.height / 8; rowJump++) {
+      for (let col = 0; col < canvas.width; col++) {
+        for (let row = rowJump; row < rowJump + 8; row++) {
+          var color = ctx.getImageData(col, row, 1, 1).data;
+          bitsDump += convertToBit(color);
+        }
       }
     }
   }
@@ -243,15 +245,4 @@ function exportCanvas() {
   removeBackground();
   dumpHexData();
 }
-
-
-
-
-
-
-
-
-
-
-
 
