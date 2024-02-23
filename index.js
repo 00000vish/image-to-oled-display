@@ -198,9 +198,9 @@ function dumpHexData() {
       }
     }
   } else {
-    for (let rowJump = 0; rowJump < canvas.height / 8; rowJump++) {
+    for (let rowJump = 0; rowJump < canvas.height; rowJump += 8) {
       for (let col = 0; col < canvas.width; col++) {
-        for (let row = rowJump; row < rowJump + 8; row++) {
+        for (let row = rowJump + 8; row > rowJump; row--) {
           var color = ctx.getImageData(col, row, 1, 1).data;
           bitsDump += convertToBit(color);
         }
@@ -210,6 +210,9 @@ function dumpHexData() {
 
   var dumpTextArea = document.getElementById("hexDataDump");
   dumpTextArea.innerText = convertBitsToHexArray(bitsDump);
+
+  console.log(arrayHorizontal ? "horizontal " : "vertical", "array order");
+  console.log(convertBitsToHexArray(bitsDump));
 }
 
 function resetCanvas() {
@@ -245,4 +248,3 @@ function exportCanvas() {
   removeBackground();
   dumpHexData();
 }
-
